@@ -1,3 +1,4 @@
+add_subdirectory(libs/aunteater/aunteater)
 add_subdirectory(libs/ebench/ebench)
 
 add_subdirectory(apps/benchmark)

@@ -23,7 +23,7 @@ class EbenchConan(ConanFile):
         "visibility": "hidden"
     }
 
-    requires = ("aunteater/0.8.0",)
+    requires = ("boost/1.73.0",)
 
     build_requires = ("cmake/[>=3.16]",)
 
