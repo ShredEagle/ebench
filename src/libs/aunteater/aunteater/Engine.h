@@ -19,13 +19,17 @@ namespace aunteater
 struct EngineTag
 {
 private:
+    template <ENGINE_TMP_PARAMS>
     friend class Engine;
     EngineTag() = default;
 };
 
 /// \brief LiveEntity class
+template <LIVE_TMP_PARAMS>
 class LiveEntity
 {
+
+    template <FAMILY_TMP_PARAMS>
     friend class Family;
 
     // Non-copiable, non-movable
@@ -34,7 +38,7 @@ class LiveEntity
 
 public:
     // Note: Only constructible by Engine
-    LiveEntity(Entity aEntity, Engine & aEngine, EngineTag) :
+    LiveEntity(Entity aEntity, Engine<ENGINE_TMP_ARGS> & aEngine, EngineTag) :
         mEntity(std::move(aEntity)),
         mEngine(aEngine)
     {}
@@ -82,9 +86,11 @@ private:
 
 private:
     Entity mEntity;
-    Engine &mEngine;
+    Engine<ENGINE_TMP_ARGS> &mEngine;
 };
 
+
+template <ENGINE_TMP_PARAMS>
 class Engine
 {
     // The engine register its address to the Entities added to it: it cannot have copy/move semantic.
@@ -100,10 +106,10 @@ public:
     /*
      * Entities manipulation
      */
-    weak_entity addEntity(Entity aEntity);
-    weak_entity addEntity(const std::string & aName, Entity aEntity);
+    weak_entity<LIVE_TMP_ARGS> addEntity(Entity aEntity);
+    weak_entity<LIVE_TMP_ARGS> addEntity(const std::string & aName, Entity aEntity);
 
-    void markToRemove(weak_entity aEntity)
+    void markToRemove(weak_entity<LIVE_TMP_ARGS> aEntity)
     {
         mEntitiesToRemove.emplace(aEntity);
     }
@@ -112,7 +118,7 @@ public:
         markToRemove(getEntity(aEntityName));
     }
 
-    weak_entity getEntity(const std::string & aEntityName)
+    weak_entity<LIVE_TMP_ARGS> getEntity(const std::string & aEntityName)
     {
         return mNamedEntities.left.find(aEntityName)->second;
     }
@@ -126,7 +132,7 @@ public:
      * Families
      */
     template <class T_archetype>
-    Family & getFamily();
+    T_family & getFamily();
 
     /*
      * System
@@ -152,7 +158,7 @@ public:
     /// \return The pause state before the call
     bool pause(bool aPauseMode);
 
-    void forEachFamily(std::function<void(Family &aFamily)> aFamilyFunctor)
+    void forEachFamily(std::function<void(T_family &aFamily)> aFamilyFunctor)
     {
         for (auto &typedFamily : mTypedFamilies)
         {
@@ -162,16 +168,16 @@ public:
 
 protected:
     void removeEntities();
-    void notifyAdditionToFamilies(weak_entity aEntity);
-    void notifyRemovalToFamilies(entity_id aEntity);
+    void notifyAdditionToFamilies(weak_entity<LIVE_TMP_ARGS> aEntity);
+    void notifyRemovalToFamilies(entity_id<LIVE_TMP_ARGS> aEntity);
 
 private:
-    typedef boost::bimap<std::string, weak_entity > NameEntityMap;
-    typedef std::map<ArchetypeTypeId, Family> ArchetypeFamilyMap;
+    typedef boost::bimap<std::string, weak_entity<LIVE_TMP_ARGS> > NameEntityMap;
+    typedef std::map<ArchetypeTypeId, T_family> ArchetypeFamilyMap;
 
-    std::list<LiveEntity> mEntities;
+    std::list<LiveEntity<LIVE_TMP_ARGS>> mEntities;
     NameEntityMap mNamedEntities;
-    std::set<weak_entity> mEntitiesToRemove;
+    std::set<weak_entity<LIVE_TMP_ARGS>> mEntitiesToRemove;
     ArchetypeFamilyMap mTypedFamilies;
     bool mPaused{false};
 
@@ -184,20 +190,22 @@ protected:
  * Implementations
  */
 
-inline void LiveEntity::markToRemove()
+template <LIVE_TMP_PARAMS>
+void LiveEntity<LIVE_TMP_ARGS>::markToRemove()
 {
     mEngine.markToRemove(this);
 }
 
+template <LIVE_TMP_PARAMS>
 template <class T_component, class... Args>
-LiveEntity & LiveEntity::add(Args&&... aArgs)
+LiveEntity<LIVE_TMP_ARGS> & LiveEntity<LIVE_TMP_ARGS>::add(Args&&... aArgs)
 {
     mEntity.add<T_component>(std::forward<Args>(aArgs)...);
 
     // Note: does not test if insertion actually took place (return value from addComponent())
     //       It is expected to be rare to replace a component this way, so avoid branching
     //       (i.e. always iterate all families, not necessary in the rare replace situation)
-    mEngine.forEachFamily([this](Family &family)
+    mEngine.forEachFamily([this](T_family &family)
     {
        family.componentAddedToEntity(this, type<T_component>());
     });
@@ -205,10 +213,11 @@ LiveEntity & LiveEntity::add(Args&&... aArgs)
 }
 
 /// \brief Removes the component of type T_component from this Entity.
+template <LIVE_TMP_PARAMS>
 template <class T_component>
-LiveEntity & LiveEntity::remove()
+LiveEntity<LIVE_TMP_ARGS> & LiveEntity<LIVE_TMP_ARGS>::remove()
 {
-    mEngine.forEachFamily([this](Family &family)
+    mEngine.forEachFamily([this](T_family &family)
     {
       family.componentRemovedFromEntity(entityIdFrom(*this), type<T_component>());
     });
@@ -216,23 +225,25 @@ LiveEntity & LiveEntity::remove()
     return *this;
 }
 
+template <ENGINE_TMP_PARAMS>
 template <class T_system, class... VT_ctorArgs>
-std::shared_ptr<T_system> Engine::addSystem(VT_ctorArgs &&... aArgs)
+std::shared_ptr<T_system> Engine<ENGINE_TMP_ARGS>::addSystem(VT_ctorArgs &&... aArgs)
 {
     auto result = std::make_shared<T_system>(*this, std::forward<VT_ctorArgs>(aArgs)...);
     addSystem(result);
     return result;
 }
 
+template <ENGINE_TMP_PARAMS>
 template <class T_archetype>
-Family & Engine::getFamily()
+T_family & Engine<ENGINE_TMP_ARGS>::getFamily()
 {
     auto insertionResult = mTypedFamilies.emplace(archetypeTypeId<T_archetype>(),
                                                   T_archetype::TypeSet());
     if (insertionResult.second)
     {
-        Family &familyRef = insertionResult.first->second;
-        for (LiveEntity & entity : mEntities)
+        T_family &familyRef = insertionResult.first->second;
+        for (LiveEntity<LIVE_TMP_ARGS> & entity : mEntities)
         {
             familyRef.addIfMatch(entityRefFrom(entity));
         }
@@ -240,8 +251,9 @@ Family & Engine::getFamily()
     return insertionResult.first->second;
 }
 
+template <ENGINE_TMP_PARAMS>
 template <class T_updater>
-void Engine::update(const Timer aTime, T_updater && aUpdater)
+void Engine<ENGINE_TMP_ARGS>::update(const Timer aTime, T_updater && aUpdater)
 {
     if (isPaused())
     {

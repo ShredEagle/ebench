@@ -6,6 +6,7 @@
 namespace aunteater
 {
 
+    template <ENGINE_TMP_PARAMS>
     class Engine;
 
     class System

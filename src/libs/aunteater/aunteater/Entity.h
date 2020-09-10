@@ -2,6 +2,7 @@
 
 #include "globals.h"
 #include "make.h"
+#include "templating.h"
 
 #include "Component.h"
 
@@ -9,11 +10,13 @@
 
 namespace aunteater
 {
+    template <ENGINE_TMP_PARAMS>
     class Engine;
 
     /// \brief Entity class
     class Entity
     {
+        template <LIVE_TMP_PARAMS>
         friend class LiveEntity;
 
     public:

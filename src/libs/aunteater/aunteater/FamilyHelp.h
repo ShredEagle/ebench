@@ -4,15 +4,17 @@
 #include "Engine.h"
 #include "Family.h"
 
+#include "templating.h"
+
 
 namespace aunteater {
 
 
-    template <class T_iterator, class T_archetype>
+    template <ENTITYWRAP_TMP_PARAMS, class T_iterator, class T_archetype>
     class EntityWrap;
 
-    template <class T_iterator, class... VT_components>
-    class EntityWrap<T_iterator, Archetype<VT_components...>>
+    template <ENTITYWRAP_TMP_PARAMS, class T_iterator, class... VT_components>
+    class EntityWrap<ENTITYWRAP_TMP_ARGS, T_iterator, Archetype<VT_components...>>
     {
         template <class>
         friend class FamilyHelp;
@@ -25,18 +27,18 @@ namespace aunteater {
 
     public:
 
-        weak_entity operator->() const
+        weak_entity<LIVE_TMP_ARGS> operator->() const
         {
             return *mEntity;
         }
 
-        /*implicit*/ operator weak_entity() const
+        /*implicit*/ operator weak_entity<LIVE_TMP_ARGS>() const
         {
             return *mEntity;
         }
 
         /// TODO should it be implicit?
-        explicit operator LiveEntity & () const
+        explicit operator LiveEntity<LIVE_TMP_ARGS> & () const
         {
             return **mEntity;
         }
@@ -103,19 +105,21 @@ namespace aunteater {
     };
 
 
-    template <class T_archetype>
+    template <HELP_TMP_PARAMS, class T_archetype>
     class FamilyHelp;
 
-    template <class... VT_components>
-    class FamilyHelp<Archetype<VT_components...>>
+    template <HELP_TMP_PARAMS, class... VT_components>
+    class FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>
     {
     public:
-        using Wrap = EntityWrap<decltype(std::declval<Family>().begin()),
+        using Wrap = EntityWrap<ENTITYWRAP_TMP_ARGS,
+                                decltype(std::declval<T_family>().begin()),
                                 Archetype<VT_components...>>;
-        using const_Wrap = EntityWrap<decltype(std::declval<Family>().cbegin()),
+        using const_Wrap = EntityWrap<ENTITYWRAP_TMP_ARGS,
+                                      decltype(std::declval<T_family>().cbegin()),
                                       Archetype<VT_components...>>;
 
-        FamilyHelp(Engine & aEngine) :
+        FamilyHelp(Engine<ENGINE_TMP_ARGS> & aEngine) :
             mFamily(aEngine.template getFamily<Archetype<VT_components...>>())
         {}
 
@@ -132,19 +136,19 @@ namespace aunteater {
         const_Wrap end() const noexcept;
         const_Wrap cend() const noexcept;
 
-        Wrap find(entity_id aEntityId);
-        const_Wrap find(entity_id aEntityId) const;
+        Wrap find(entity_id<LIVE_TMP_ARGS> aEntityId);
+        const_Wrap find(entity_id<LIVE_TMP_ARGS> aEntityId) const;
 
     private:
-        Family & mFamily;
+        T_family & mFamily;
     };
 
     /***
      * Implementations
      ***/
-    template <class... VT_components>
+    template <HELP_TMP_PARAMS, class... VT_components>
     template <class T_functor>
-    void FamilyHelp<Archetype<VT_components...>>::forEach(const T_functor &aOperation) const
+    void FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::forEach(const T_functor &aOperation) const
     {
         for(auto entity : mFamily)
         {
@@ -152,60 +156,60 @@ namespace aunteater {
         }
     }
 
-    template <class... VT_components>
-    std::size_t FamilyHelp<Archetype<VT_components...>>::size() const noexcept
+    template <HELP_TMP_PARAMS, class... VT_components>
+    std::size_t FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::size() const noexcept
     {
         return mFamily.size();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::begin() noexcept -> Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::begin() noexcept -> Wrap
     {
         return mFamily.begin();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::begin() const noexcept -> const_Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::begin() const noexcept -> const_Wrap
     {
         return mFamily.cbegin();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::cbegin() const noexcept -> const_Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::cbegin() const noexcept -> const_Wrap
     {
         return mFamily.cbegin();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::end() noexcept -> Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::end() noexcept -> Wrap
     {
         return mFamily.end();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::end() const noexcept -> const_Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::end() const noexcept -> const_Wrap
     {
         return mFamily.cend();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::cend() const noexcept -> const_Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::cend() const noexcept -> const_Wrap
     {
         return mFamily.cend();
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::find(entity_id aEntityId) -> Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::find(entity_id<LIVE_TMP_ARGS> aEntityId) -> Wrap
     {
         return mFamily.find(aEntityId);
     }
 
-    template <class... VT_components>
-    auto FamilyHelp<Archetype<VT_components...>>::find(entity_id aEntityId) const -> const_Wrap
+    template <HELP_TMP_PARAMS, class... VT_components>
+    auto FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>::find(entity_id<LIVE_TMP_ARGS> aEntityId) const -> const_Wrap
     {
         // Top-level const on FamilyHelp does not become low-level const on referenced Family
         // (i.e. same as for pointer data members, we would need propagate_const<>)
-        return static_cast<const Family &>(mFamily).find(aEntityId);
+        return static_cast<const T_family &>(mFamily).find(aEntityId);
     }
 
 } // namespace aunteater
@@ -215,13 +219,13 @@ namespace aunteater {
 //
 namespace std {
 
-template <class T_iterator, class T_archetype>
-class tuple_size<aunteater::EntityWrap<T_iterator, T_archetype>> :
+template <ENTITYWRAP_TMP_PARAMS, class T_iterator, class T_archetype>
+class tuple_size<aunteater::EntityWrap<ENTITYWRAP_TMP_ARGS, T_iterator, T_archetype>> :
     public std::integral_constant<size_t, aunteater::Archetype_size<T_archetype>::value>
 {};
 
-template <std::size_t I, class T_iterator, class T_archetype>
-class tuple_element<I, aunteater::EntityWrap<T_iterator, T_archetype>> :
+template <std::size_t I, ENTITYWRAP_TMP_PARAMS, class T_iterator, class T_archetype>
+class tuple_element<I, aunteater::EntityWrap<ENTITYWRAP_TMP_ARGS, T_iterator, T_archetype>> :
     public aunteater::Archetype_element<I, T_archetype>
 {};
 

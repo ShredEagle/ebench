@@ -1,5 +1,7 @@
 #pragma once
 
+#include "templating.h"
+
 #include <memory>
 #include <set>
 #include <typeinfo>
@@ -7,7 +9,7 @@
 namespace aunteater
 {
     class ComponentBase;
-    class LiveEntity;
+    template <LIVE_TMP_PARAMS> class LiveEntity;
     class System;
 
     typedef const std::type_info * ComponentTypeId;
@@ -34,21 +36,29 @@ namespace aunteater
         return & typeid(T_Archetype);
     }
 
-    typedef const LiveEntity* entity_id; // Could alternatively be a const void*: should never be used to invoke methods.
-    typedef LiveEntity* weak_entity;
-    typedef const LiveEntity * const_weak_entity;
+    template <LIVE_TMP_PARAMS>
+    using entity_id = const LiveEntity<LIVE_TMP_ARGS>*; // Could alternatively be a const void*: should never be used to invoke methods.
 
-    inline entity_id entityIdFrom(const LiveEntity &aWrapper)
+    template <LIVE_TMP_PARAMS>
+    using weak_entity= LiveEntity<LIVE_TMP_ARGS>*;
+
+    template <LIVE_TMP_PARAMS>
+    using const_weak_entity= const LiveEntity<LIVE_TMP_ARGS>*;
+
+    template <LIVE_TMP_PARAMS>
+    entity_id<LIVE_TMP_ARGS> entityIdFrom(const LiveEntity<LIVE_TMP_ARGS> &aWrapper)
     {
         return &aWrapper;
     }
 
-    inline entity_id entityIdFrom(weak_entity aWeakEntity)
+    template <LIVE_TMP_PARAMS>
+    entity_id<LIVE_TMP_ARGS> entityIdFrom(weak_entity<LIVE_TMP_ARGS> aWeakEntity)
     {
         return aWeakEntity;
     }
 
-    inline weak_entity entityRefFrom(LiveEntity &aWrapper)
+    template <LIVE_TMP_PARAMS>
+    weak_entity<LIVE_TMP_ARGS> entityRefFrom(LiveEntity<LIVE_TMP_ARGS> &aWrapper)
     {
         return &aWrapper;
     }

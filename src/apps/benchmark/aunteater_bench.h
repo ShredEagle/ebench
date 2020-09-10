@@ -16,7 +16,7 @@ aunteater::Entity makeEntity()
 }
 
 
-void createEntities(aunteater::Engine & aEngine, std::size_t aCount)
+void createEntities(Engine & aEngine, std::size_t aCount)
 {
     for (std::size_t id = 0; id != aCount; ++id)
     {
@@ -26,21 +26,21 @@ void createEntities(aunteater::Engine & aEngine, std::size_t aCount)
 
 
 template <int N=0>
-aunteater::Engine & addSystems(aunteater::Engine & aEngine)
+Engine & addSystems(Engine & aEngine)
 {
     return aEngine;
 }
 
 
 template <class T_systemHead, class... VT_systemTail>
-aunteater::Engine & addSystems(aunteater::Engine & aEngine)
+Engine & addSystems(Engine & aEngine)
 {
     aEngine.addSystem<T_systemHead>();
     return addSystems<VT_systemTail...>(aEngine);
 }
 
 
-void simulateStep(aunteater::Engine & aEngine)
+void simulateStep(Engine & aEngine)
 {
     aunteater::Timer timer;
     timer.mark(1.0);

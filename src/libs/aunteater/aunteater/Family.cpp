@@ -5,13 +5,17 @@
 
 #include <algorithm>
 
-using namespace aunteater;
 
-Family::Family(ArchetypeTypeSet aComponentsTypeInfo):
+namespace aunteater {
+
+
+template <FAMILY_TMP_PARAMS>
+Family<FAMILY_TMP_ARGS>::Family(ArchetypeTypeSet aComponentsTypeInfo):
         mComponentsTypeInfo(std::move(aComponentsTypeInfo))
 {}
 
-void Family::addIfMatch(weak_entity aEntity)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::addIfMatch(weak_entity<Family> aEntity)
 {
     if (std::all_of(mComponentsTypeInfo.begin(), mComponentsTypeInfo.end(),
                     [&aEntity](ComponentTypeId compId)
@@ -24,22 +28,24 @@ void Family::addIfMatch(weak_entity aEntity)
         {
             throw std::logic_error("Entity already present in this family.");
         }
-        broadcastNotification(&FamilyObserver::addedEntity, **insertedIt);
+        broadcastNotification(&FamilyObserver<Family>::addedEntity, **insertedIt);
     }
 }
 
-void Family::removeIfPresent(entity_id aEntity)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::removeIfPresent(entity_id<Family> aEntity)
 {
     auto foundIt = mEntitiesPositions.find(entityIdFrom(*aEntity));
     if (foundIt != mEntitiesPositions.end())
     {
-        broadcastNotification(&FamilyObserver::removedEntity, **(foundIt->second));
+        broadcastNotification(&FamilyObserver<Family>::removedEntity, **(foundIt->second));
         mEntities.erase(foundIt->second);
         mEntitiesPositions.erase(foundIt);
     }
 }
 
-void Family::componentAddedToEntity(weak_entity aEntity, ComponentTypeId /*aComponent*/)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::componentAddedToEntity(weak_entity<Family> aEntity, ComponentTypeId /*aComponent*/)
 {
     if(!isPresent(aEntity))
     {
@@ -47,7 +53,8 @@ void Family::componentAddedToEntity(weak_entity aEntity, ComponentTypeId /*aComp
     }
 }
 
-void Family::componentRemovedFromEntity(entity_id aEntity, ComponentTypeId aComponent)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::componentRemovedFromEntity(entity_id<Family> aEntity, ComponentTypeId aComponent)
 {
     if (includesComponent(aComponent))
     {
@@ -55,17 +62,20 @@ void Family::componentRemovedFromEntity(entity_id aEntity, ComponentTypeId aComp
     }
 }
 
-bool Family::isPresent(entity_id aEntity) const
+template <FAMILY_TMP_PARAMS>
+bool Family<FAMILY_TMP_ARGS>::isPresent(entity_id<Family> aEntity) const
 {
     return mEntitiesPositions.find(aEntity) != mEntitiesPositions.end();
 }
 
-bool Family::includesComponent(ComponentTypeId aComponent) const
+template <FAMILY_TMP_PARAMS>
+bool Family<FAMILY_TMP_ARGS>::includesComponent(ComponentTypeId aComponent) const
 {
     return mComponentsTypeInfo.count(aComponent);
 }
 
-void Family::broadcastNotification(NotificationMethod aTargetMethod, LiveEntity &aEntity) const
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::broadcastNotification(NotificationMethod aTargetMethod, LiveEntity<Family> &aEntity) const
 {
     for(auto observer : mObservers)
     {
@@ -73,30 +83,38 @@ void Family::broadcastNotification(NotificationMethod aTargetMethod, LiveEntity 
     }
 }
 
-void Family::cancelObserverImpl(FamilyObserver *aObserver)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::cancelObserverImpl(FamilyObserver<Family> *aObserver)
 {
     /// \todo gsl::Expect prime candidate
     assert(std::find(mObservers.begin(), mObservers.end(), aObserver) != mObservers.end());
     mObservers.erase(std::find(mObservers.begin(), mObservers.end(), aObserver));
 }
 
-void Family::notifyOfExistingEntities(FamilyObserver *aObserver)
+template <FAMILY_TMP_PARAMS>
+void Family<FAMILY_TMP_ARGS>::notifyOfExistingEntities(FamilyObserver<Family> *aObserver)
 {
-    for(weak_entity entity : mEntities)
+    for(weak_entity<Family> entity : mEntities)
     {
-        broadcastNotification(&FamilyObserver::addedEntity, *entity);
+        broadcastNotification(&FamilyObserver<Family>::addedEntity, *entity);
     };
 }
 
-Family & Family::registerObserver(FamilyObserver *aObserver)
+template <FAMILY_TMP_PARAMS>
+auto Family<FAMILY_TMP_ARGS>::registerObserver(FamilyObserver<Family> *aObserver) -> Family &
 {
     mObservers.push_back(aObserver);
     notifyOfExistingEntities(aObserver);
     return *this;
 }
 
-Family & Family::cancelObserver(FamilyObserver *aObserver)
+template <FAMILY_TMP_PARAMS>
+auto Family<FAMILY_TMP_ARGS>::cancelObserver(FamilyObserver<Family> *aObserver) -> Family &
 {
     cancelObserverImpl(aObserver);
     return *this;
 }
+
+template class Family<list_entity>;
+
+} // namespace aunteater

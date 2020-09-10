@@ -43,7 +43,7 @@ int main()
 
     for (const auto count : gEntityCounts)
     {
-        aunteater::Engine engine;
+        ad::ebench::Engine engine;
 
         // Create entities
         auto timePoint = timer.now();
@@ -57,8 +57,8 @@ int main()
 
         // Update step
         //ad::ebench::addSystems<ad::ebench::MovementSystem, ad::ebench::SumSystem>(engine);
-        engine.addSystem<ad::ebench::MovementSystem>();
-        auto sumSystem = engine.addSystem<ad::ebench::SumSystem>();
+        engine.addSystem<ad::ebench::MovementSystem<ad::ebench::Family>>();
+        auto sumSystem = engine.addSystem<ad::ebench::SumSystem<ad::ebench::Family>>();
 
         timePoint = timer.now();
         ad::ebench::simulateStep(engine);

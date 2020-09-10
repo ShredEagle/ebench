@@ -8,6 +8,7 @@ set(${PROJECT_NAME}_HEADERS
     Family.h
     FamilyHelp.h
     System.h
+    templating.h
     UpdateTiming.h
 
     globals.h
