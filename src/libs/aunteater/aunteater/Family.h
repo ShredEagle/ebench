@@ -51,6 +51,13 @@ namespace aunteater
 
         using EntityList = TT_entityCollection<Family>;
     public:
+        // Note: just to have a common interface with FamilyPoly
+        template <class T_archetype>
+        static Family Construct()
+        {
+            return Family{T_archetype::TypeSet()};
+        }
+
         // Note: must be accessible to pair forwarded constructor (cannot be private)
         explicit Family(ArchetypeTypeSet aComponentsTypeInfo);
 
@@ -61,6 +68,10 @@ namespace aunteater
         // Yes, C++ requires you to delete the right signature
         Family(const Family & aOther) = delete;
         Family & operator=(Family & aOther) = delete;
+
+        // Required now that the pair forwarded constructor receive a Construct()ed family directly
+        Family(Family && aOther) = default;
+        Family & operator=(Family && aOther) = default;
 
         /// \brief Inteded for client use, not used as an internal mechanism
         Family & registerObserver(FamilyObserver<Family> *aObserver);

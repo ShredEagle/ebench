@@ -3,6 +3,7 @@
 #include "Archetype.h"
 #include "Engine.h"
 #include "Family.h"
+#include "FamilyPoly.h"
 
 #include "templating.h"
 
@@ -105,22 +106,142 @@ namespace aunteater {
     };
 
 
+    template <class T_iterator, class... VT_components>
+    class EntityWrap<FamilyPoly, T_iterator, Archetype<VT_components...>>
+    {
+        template <HELP_TMP_PARAMS_ANONYMOUS, class>
+        friend class FamilyHelp;
+
+        typedef T_iterator iterator;
+
+        EntityWrap(iterator aIterator) :
+            mEntity(aIterator)
+        {}
+
+    public:
+
+        //weak_entity<FamilyPoly> operator->() const
+        //{
+        //    return *mEntity;
+        //}
+
+        ///*implicit*/ operator weak_entity<FamilyPoly>() const
+        //{
+        //    return *mEntity;
+        //}
+
+        ///// TODO should it be implicit?
+        //explicit operator LiveEntity<FamilyPoly> & () const
+        //{
+        //    return **mEntity;
+        //}
+
+        // Part of structured binding implementation
+        template <std::size_t I>
+        auto & get() &
+        {
+            return *std::get<I>(*mEntity);
+        }
+
+        //template <std::size_t I>
+        //auto get() &&
+        //{
+        //    return (*mEntity)->template get<typename std::tuple_element<I, EntityWrap>::type>();
+        //}
+
+        //template <std::size_t I>
+        //auto & get() const &
+        //{
+        //    return (*mEntity)->template get<typename std::tuple_element<I, EntityWrap>::type>();
+        //}
+
+        //template <std::size_t I>
+        //auto get() const &&
+        //{
+        //    return (*mEntity)->template get<typename std::tuple_element<I, EntityWrap>::type>();
+        //}
+
+        // Note: This operator has to behave in a surprising manner:
+        //  It will be used by the range-base for loop, assigning its result
+        //  to the "range_declaration".
+        //  If it behaved in a normal manner (returning the pointed to object, i.e. weak_entity),
+        //  it would lose all benefits from wrapping
+        //  (i.e. structured binding and statically checked get)
+        EntityWrap & operator*()
+        {
+            return *this;
+        }
+
+        auto operator==(const EntityWrap & aOther) const
+        {
+            return mEntity == aOther.mEntity;
+        }
+
+        auto operator!=(const EntityWrap & aOther) const
+        {
+            return mEntity != aOther.mEntity;
+        }
+
+        EntityWrap & operator++()
+        {
+            ++mEntity;
+            return *this;
+        }
+
+        EntityWrap operator++(int)
+        {
+            return mEntity++;
+        }
+
+    private:
+         iterator mEntity;
+    };
+
+
+    template <class T_family, class T_archetype>
+    struct HelperStored
+    {
+        using type = T_family;
+
+        template <class T_engine>
+        static type & getFamily(T_engine & aEngine)
+        {
+            return aEngine.template getFamily<T_archetype>();
+        }
+    };
+
+    template <class T_archetype>
+    struct HelperStored<FamilyPoly, T_archetype>
+    {
+        using type = FamilyTyped<T_archetype>;
+
+        template <class T_engine>
+        static type & getFamily(T_engine & aEngine)
+        {
+            return static_cast<type &>(*aEngine.template getFamily<T_archetype>().mDerived.get());
+        }
+    };
+
+
     template <HELP_TMP_PARAMS, class T_archetype>
     class FamilyHelp;
 
     template <HELP_TMP_PARAMS, class... VT_components>
     class FamilyHelp<HELP_TMP_ARGS, Archetype<VT_components...>>
     {
+        using HelperStored = HelperStored<T_family, Archetype<VT_components...>>;
+        using StoredType = typename HelperStored::type;
+
     public:
         using Wrap = EntityWrap<ENTITYWRAP_TMP_ARGS,
-                                decltype(std::declval<T_family>().begin()),
+                                decltype(std::declval<StoredType>().begin()),
                                 Archetype<VT_components...>>;
         using const_Wrap = EntityWrap<ENTITYWRAP_TMP_ARGS,
-                                      decltype(std::declval<T_family>().cbegin()),
+                                      decltype(std::declval<StoredType>().cbegin()),
                                       Archetype<VT_components...>>;
 
         FamilyHelp(Engine<ENGINE_TMP_ARGS> & aEngine) :
-            mFamily(aEngine.template getFamily<Archetype<VT_components...>>())
+            mFamily(HelperStored::getFamily(aEngine))
         {}
 
         template <class T_functor>
@@ -140,7 +261,7 @@ namespace aunteater {
         const_Wrap find(entity_id<LIVE_TMP_ARGS> aEntityId) const;
 
     private:
-        T_family & mFamily;
+        StoredType & mFamily;
     };
 
     /***

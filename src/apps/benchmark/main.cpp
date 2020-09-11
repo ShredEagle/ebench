@@ -1,5 +1,7 @@
 #include "aunteater_bench.h"
 
+#include <aunteater/FamilyPoly.h>
+
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -93,6 +95,12 @@ int main()
     for (const auto count : gEntityCounts)
     {
         bench<aunteater::Family<aunteater::vector_entity>>(count);
+    }
+
+    printSection("Polymorphic family");
+    for (const auto count : gEntityCounts)
+    {
+        bench<aunteater::FamilyPoly>(count);
     }
     return EXIT_SUCCESS;
 }

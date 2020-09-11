@@ -240,7 +240,7 @@ template <class T_archetype>
 T_family & Engine<ENGINE_TMP_ARGS>::getFamily()
 {
     auto insertionResult = mTypedFamilies.emplace(archetypeTypeId<T_archetype>(),
-                                                  T_archetype::TypeSet());
+                                                  T_family::template Construct<T_archetype>());
     if (insertionResult.second)
     {
         T_family &familyRef = insertionResult.first->second;

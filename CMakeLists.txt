@@ -22,6 +22,10 @@ if(NOT CMAKE_CXX_EXTENSIONS)
     set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options("-ftemplate-backtrace-limit=0")
+endif()
+
 ##
 ## Include components
 ##

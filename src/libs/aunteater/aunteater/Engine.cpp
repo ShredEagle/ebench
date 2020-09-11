@@ -2,6 +2,7 @@
 #include "System.h"
 
 #include "Component.h"
+#include "FamilyPoly.h"
 
 
 namespace aunteater {
@@ -131,5 +132,6 @@ bool Engine<ENGINE_TMP_ARGS>::pause(bool aPauseMode)
 // Implicit instantiations
 template class Engine<Family<list_entity>>;
 template class Engine<Family<vector_entity>>;
+template class Engine<FamilyPoly>;
 
 } // namespace aunteater
