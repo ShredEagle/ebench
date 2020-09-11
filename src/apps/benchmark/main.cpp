@@ -20,7 +20,7 @@ const std::vector<std::size_t> gEntityCounts {
 
 
 template <class T_duration>
-std::string humanTime(T_duration aDuration)
+std::string humanDuration(T_duration aDuration)
 {
     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(aDuration).count();
     if (microseconds > 1E6)
@@ -37,41 +37,62 @@ std::string humanTime(T_duration aDuration)
     }
 }
 
-int main()
-{
-    Timer timer;
 
-    for (const auto count : gEntityCounts)
-    {
-        ad::ebench::Engine engine;
+template <class T_family, class T_engine=aunteater::Engine<T_family>>
+void bench(std::size_t aEntityCount)
+{
+        Timer timer;
+        T_engine engine;
 
         // Create entities
         auto timePoint = timer.now();
-        ad::ebench::createEntities(engine, count);
+        ad::ebench::createEntities(engine, aEntityCount);
 
-        std::cout << "Create " << count << " entities: "
-                  << humanTime(timer.now() - timePoint)
+        std::cout << "Create " << aEntityCount << " entities: "
+                  << humanDuration(timer.now() - timePoint)
                   << "\n"
                   ;
 
-
         // Update step
-        //ad::ebench::addSystems<ad::ebench::MovementSystem, ad::ebench::SumSystem>(engine);
-        engine.addSystem<ad::ebench::MovementSystem<ad::ebench::Family>>();
-        auto sumSystem = engine.addSystem<ad::ebench::SumSystem<ad::ebench::Family>>();
+        engine.template addSystem<ad::ebench::MovementSystem_FamilyHelp<T_family>>();
+        auto sumSystem = engine.template addSystem<ad::ebench::SumSystem_FamilyHelp<T_family>>();
 
         timePoint = timer.now();
         ad::ebench::simulateStep(engine);
 
-        std::cout << "Update 2 system with " << count << " entities: "
-                  << humanTime(timer.now() - timePoint)
+        std::cout << "Update 2 system with " << aEntityCount << " entities: "
+                  << humanDuration(timer.now() - timePoint)
                   << " (Sum: " << sumSystem->getSum() << ")"
                   << "\n"
                   << std::endl
                   ;
+}
 
 
+void printSection(const std::string & aName)
+{
+    std::string::size_type lineLength = 2*3 + 2 + aName.size();
+    // Does not compile, what the heck...
+    //const std::string line{lineLength, 'a'};
+    const std::string line(lineLength, '#');
+    std::cout << line << '\n'
+              << "### " << aName << " ###\n"
+              << line << '\n'
+              ;
+}
 
+int main()
+{
+    printSection("v 0.8.0");
+    for (const auto count : gEntityCounts)
+    {
+        bench<ad::ebench::Family>(count);
+    }
+
+    printSection("vector");
+    for (const auto count : gEntityCounts)
+    {
+        bench<aunteater::Family<aunteater::vector_entity>>(count);
     }
     return EXIT_SUCCESS;
 }

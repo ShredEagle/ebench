@@ -48,8 +48,8 @@ template <class T_family>
 class MovementSystem : public aunteater::System
 {
 public:
-    MovementSystem(Engine & aEngine) :
-        mMovables{aEngine.getFamily<Movable>()}
+    MovementSystem(aunteater::Engine<T_family> & aEngine) :
+        mMovables{aEngine.template getFamily<Movable>()}
     {}
 
     void update(const aunteater::Timer aTimer) override
@@ -73,7 +73,7 @@ template <class T_family>
 class MovementSystem_FamilyHelp : public aunteater::System
 {
 public:
-    MovementSystem_FamilyHelp(Engine & aEngine) :
+    MovementSystem_FamilyHelp(aunteater::Engine<T_family> & aEngine) :
         mMovables{aEngine}
     {}
 
@@ -98,8 +98,8 @@ template <class T_family>
 class SumSystem : public aunteater::System
 {
 public:
-    SumSystem(Engine & aEngine) :
-        mPositioneds{aEngine.getFamily<Positioned>()}
+    SumSystem(aunteater::Engine<T_family> & aEngine) :
+        mPositioneds{aEngine.template getFamily<Positioned>()}
     {}
 
     void update(const aunteater::Timer aTimer) override
@@ -127,7 +127,7 @@ template <class T_family>
 class SumSystem_FamilyHelp : public aunteater::System
 {
 public:
-    SumSystem_FamilyHelp(Engine & aEngine) :
+    SumSystem_FamilyHelp(aunteater::Engine<T_family> & aEngine) :
         mPositioneds{aEngine}
     {}
 

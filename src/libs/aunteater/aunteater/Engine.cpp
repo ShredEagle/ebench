@@ -130,5 +130,6 @@ bool Engine<ENGINE_TMP_ARGS>::pause(bool aPauseMode)
 
 // Implicit instantiations
 template class Engine<Family<list_entity>>;
+template class Engine<Family<vector_entity>>;
 
 } // namespace aunteater

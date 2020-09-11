@@ -115,6 +115,9 @@ auto Family<FAMILY_TMP_ARGS>::cancelObserver(FamilyObserver<Family> *aObserver) 
     return *this;
 }
 
+
+// Implicit instantiations
 template class Family<list_entity>;
+template class Family<vector_entity>;
 
 } // namespace aunteater

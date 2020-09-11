@@ -113,6 +113,7 @@ public:
     {
         mEntitiesToRemove.emplace(aEntity);
     }
+
     void markToRemove(const std::string & aEntityName)
     {
         markToRemove(getEntity(aEntityName));

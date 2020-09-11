@@ -16,7 +16,7 @@ namespace aunteater {
     template <ENTITYWRAP_TMP_PARAMS, class T_iterator, class... VT_components>
     class EntityWrap<ENTITYWRAP_TMP_ARGS, T_iterator, Archetype<VT_components...>>
     {
-        template <class>
+        template <HELP_TMP_PARAMS_ANONYMOUS, class>
         friend class FamilyHelp;
 
         typedef T_iterator iterator;

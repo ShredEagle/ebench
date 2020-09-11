@@ -14,6 +14,7 @@
 
 
 #define HELP_TMP_PARAMS class T_family
+#define HELP_TMP_PARAMS_ANONYMOUS class
 #define HELP_TMP_ARGS T_family
 
 
