@@ -40,13 +40,12 @@ Engine & addSystems(Engine & aEngine)
     return addSystems<VT_systemTail...>(aEngine);
 }
 
-
-template <class T_engine>
-void simulateStep(T_engine & aEngine)
+template <class T_engine, class T_updater>
+void simulateStep(T_engine & aEngine, T_updater & aUpdater)
 {
     aunteater::Timer timer;
     timer.mark(1.0);
-    aEngine.update(timer);
+    aEngine.update(timer, aUpdater);
 }
 
 

@@ -1,6 +1,7 @@
 #include "aunteater_bench.h"
 
 #include <aunteater/FamilyPoly.h>
+#include <aunteater/UpdateTiming.h>
 
 #include <chrono>
 #include <iostream>
@@ -59,15 +60,21 @@ void bench(std::size_t aEntityCount)
         engine.template addSystem<ad::ebench::MovementSystem_FamilyHelp<T_family>>();
         auto sumSystem = engine.template addSystem<ad::ebench::SumSystem_FamilyHelp<T_family>>();
 
+        aunteater::UpdateTiming timing;
         timePoint = timer.now();
-        ad::ebench::simulateStep(engine);
+        ad::ebench::simulateStep(engine, timing);
 
         std::cout << "Update 2 system with " << aEntityCount << " entities: "
                   << humanDuration(timer.now() - timePoint)
-                  << " (Sum: " << sumSystem->getSum() << ")"
-                  << "\n"
-                  << std::endl
+                  << " (Sum: " << sumSystem->getSum() << ")\n"
                   ;
+
+        for (const auto & [systemName, duration] : timing.getTimings())
+        {
+            std::cout << "\t" << systemName << ": " << humanDuration(duration) << "\n"
+                      ;
+        }
+        std::cout << std::endl;
 }
 
 

@@ -11,7 +11,7 @@
 
 namespace aunteater {
 
-class UpdateTiming : public Engine
+class UpdateTiming
 {
     template <class T>
     std::string getTypeName(const T & aObject)
@@ -45,6 +45,11 @@ public:
     }
 
     void outputTimings(std::ostream &os) const;
+
+    std::map<std::string, std::chrono::microseconds> & getTimings()
+    {
+        return mTimings;
+    }
 
 private:
     std::chrono::steady_clock::time_point initial;
