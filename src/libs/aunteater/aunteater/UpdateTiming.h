@@ -46,7 +46,7 @@ public:
 
     void outputTimings(std::ostream &os) const;
 
-    std::map<std::string, std::chrono::microseconds> & getTimings()
+    const std::map<std::string, std::chrono::microseconds> & getTimings() const
     {
         return mTimings;
     }

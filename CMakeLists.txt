@@ -25,6 +25,9 @@ endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options("-ftemplate-backtrace-limit=0")
 endif()
+# Seems to be the default
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 
 ##
 ## Include components

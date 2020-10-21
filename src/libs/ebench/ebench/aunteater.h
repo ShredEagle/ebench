@@ -33,7 +33,8 @@ struct Position : public aunteater::Component<Position>
 
 struct Displacement : public aunteater::Component<Displacement>
 {
-    Floating x{1.1f};
+    static constexpr float gXDisplacement = 1.1f;
+    Floating x{gXDisplacement};
     Floating y{2.5f};
 };
 
