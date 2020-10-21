@@ -120,15 +120,15 @@ namespace aunteater {
 
     public:
 
-        //weak_entity<FamilyPoly> operator->() const
-        //{
-        //    return *mEntity;
-        //}
+        weak_entity<FamilyPoly> operator->() const
+        {
+            return mEntity->entity;
+        }
 
-        ///*implicit*/ operator weak_entity<FamilyPoly>() const
-        //{
-        //    return *mEntity;
-        //}
+        /*implicit*/ operator weak_entity<FamilyPoly>() const
+        {
+            return mEntity->entity;
+        }
 
         ///// TODO should it be implicit?
         //explicit operator LiveEntity<FamilyPoly> & () const
@@ -140,7 +140,7 @@ namespace aunteater {
         template <std::size_t I>
         auto & get() &
         {
-            return *std::get<I>(*mEntity);
+            return *std::get<I>(mEntity->components);
         }
 
         //template <std::size_t I>

@@ -107,6 +107,26 @@ void bench(std::size_t aEntityCount)
             ALWAYS_ASSERT(almostEqual(sumSystem->getSum(),
                                       aEntityCount * ad::ebench::Displacement::gXDisplacement))
         }
+
+        //
+        // Remove every other entity
+        //
+        {
+            engine.clearSystems();
+            engine.template addSystem<ad::ebench::RemoveSystem<T_family>>();
+
+            timePoint = timer.now();
+            aunteater::UpdateTiming timing;
+            ad::ebench::simulateStep(engine, timing);
+
+            std::cout << "Remove " << aEntityCount/2 << " entities: "
+                      << humanDuration(timer.now() - timePoint)
+                      << "\n"
+                      ;
+            showTimingDetails(timing, std::cout);
+
+            ALWAYS_ASSERT(engine.countEntities() == aEntityCount/2)
+        }
 }
 
 

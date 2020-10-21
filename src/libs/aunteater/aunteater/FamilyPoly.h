@@ -48,7 +48,11 @@ bool hasAllComponents(weak_entity<FamilyPoly> aEntity)
 template <class... VT_component>
 class FamilyTyped<Archetype<VT_component...>> : public FamilyBase
 {
-    using Node = std::tuple<VT_component *...> ;
+    struct Node
+    {
+        weak_entity<FamilyPoly> entity;
+        std::tuple<VT_component *...> components;
+    };
 
 public:
     auto begin() noexcept
@@ -72,7 +76,8 @@ public:
     {
         if (hasAllComponents<VT_component...>(aEntity))
         {
-            mNodes.emplace_back(&(aEntity->get<VT_component>())...);
+            // emplace_back not working with aggregate init before C++20
+            mNodes.push_back(Node{aEntity, std::make_tuple(&(aEntity->get<VT_component>())...)});
             if (!mEntitiesPositions.emplace(entityIdFrom(*aEntity), mNodes.size()-1).second)
             {
                 throw std::logic_error("Entity already present in this family.");

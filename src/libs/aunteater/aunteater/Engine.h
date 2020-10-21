@@ -146,6 +146,11 @@ public:
 
     void addSystem(std::shared_ptr<System> aSystem);
 
+    void clearSystems()
+    {
+        mSystems.clear();
+    }
+
     /*
      * Update
      */

@@ -150,6 +150,29 @@ private:
     Floating mSum{0.};
 };
 
+template <class T_family, class T_archetype=Positioned>
+class RemoveSystem : public aunteater::System
+{
+public:
+    RemoveSystem(aunteater::Engine<T_family> & aEngine) :
+        mEntities{aEngine}
+    {}
+
+    void update(const aunteater::Timer aTimer) override
+    {
+        std::size_t i = 0;
+        for (auto & entity : mEntities)
+        {
+            if (++i%2)
+            {
+               entity->markToRemove();
+            }
+        }
+    }
+
+private:
+    aunteater::FamilyHelp<T_family, T_archetype> mEntities;
+};
 
 } // namespace ebench
 } // namespace ad
