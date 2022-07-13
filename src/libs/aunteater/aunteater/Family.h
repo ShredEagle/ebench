@@ -180,7 +180,7 @@ namespace aunteater
     auto Family<FAMILY_TMP_ARGS>::find(entity_id<Family> aEntityId) const -> typename EntityList::const_iterator
     {
         auto found = mEntitiesPositions.find(aEntityId);
-        return (found != mEntitiesPositions.end()) ? found->second
+        return (found != mEntitiesPositions.end()) ? static_cast<typename EntityList::const_iterator>(found->second)
                                                    : end();
     }
 
