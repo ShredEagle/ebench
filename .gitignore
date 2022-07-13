@@ -1,6 +1,9 @@
 # common #
 *.*~
 
+# CMake
+CMakeUserPresets.json
+
 # Build folders #
 /build/
 /build_*/

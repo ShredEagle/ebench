@@ -1,24 +1,30 @@
-project(benchmark VERSION "${CMAKE_PROJECT_VERSION}")
+set(TARGET_NAME benchmark)
 
-set(${PROJECT_NAME}_HEADERS
+set(${TARGET_NAME}_HEADERS
     aunteater_bench.h
 )
 
-set(${PROJECT_NAME}_SOURCES
+set(${TARGET_NAME}_SOURCES
     main.cpp
 )
 
-add_executable(${PROJECT_NAME}
-               ${${PROJECT_NAME}_HEADERS}
-               ${${PROJECT_NAME}_SOURCES}
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR}
+             FILES ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_SOURCES}
 )
 
-target_link_libraries(${PROJECT_NAME}
+add_executable(${TARGET_NAME}
+               ${${TARGET_NAME}_HEADERS}
+               ${${TARGET_NAME}_SOURCES}
+)
+
+cmc_target_current_include_directory(${TARGET_NAME})
+
+target_link_libraries(${TARGET_NAME}
     PRIVATE
         ad::ebench)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${TARGET_NAME} PROPERTIES
                       VERSION "${${PROJECT_NAME}_VERSION}"
 )
 
-install(TARGETS ${PROJECT_NAME})
+install(TARGETS ${TARGET_NAME})
