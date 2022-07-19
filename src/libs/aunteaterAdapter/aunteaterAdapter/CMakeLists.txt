@@ -1,15 +1,11 @@
-set(TARGET_NAME ebench)
+set(TARGET_NAME aunteaterAdapter)
 
 set(${TARGET_NAME}_HEADERS
-    bench.h
+    model.h
 )
 
 set(${TARGET_NAME}_SOURCES
-    bench.cpp
-)
-
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR}
-             FILES ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_SOURCES}
+    model.cpp
 )
 
 add_library(${TARGET_NAME}
@@ -29,6 +25,13 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 ##
 ## Dependencies
 ##
+
+cmc_find_dependencies()
+
+target_link_libraries(${TARGET_NAME}
+    PUBLIC
+        ad::aunteater
+)
 
 
 ##
