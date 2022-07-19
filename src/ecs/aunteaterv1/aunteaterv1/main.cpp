@@ -10,6 +10,38 @@ namespace ad
 namespace ebench
 {
 
+template<typename T_ecs>
+void BM_AddEntity(benchmark::State & aState)
+{
+    aunteater::Timer timer;
+
+    aunteater::EntityManager entityManager;
+    aunteater::SystemManager<> systemManager{entityManager};
+    systemManager.add<MovementSystem>();
+
+    //auto world = T_ecs.instantiate();
+    //world.addSystem<T_ecs::MovementSystem>();
+
+    for (auto _ : aState)
+    {
+        /* world.addEntity( */
+        /*         T_ecs::Position{math::Position{}} */
+        /* ); */
+        entityManager.addEntity(aunteater::Entity{}.add<Position>(0., 0.).add<Displacement>());
+    }
+
+    aState.SetItemsProcessed(aState.iterations());
+}
+
+template<typename T>
+int allbench()
+{
+    BENCHMARK_TEMPLATE(BM_AddEntity, T);
+    return 0;
+}
+
+static int yo = allbench<int>();
+
 void BM_UpdateSystem(benchmark::State & aState)
 {
     aunteater::Timer timer;
