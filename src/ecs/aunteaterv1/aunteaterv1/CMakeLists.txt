@@ -19,6 +19,7 @@ target_link_libraries(${TARGET_NAME}
     PRIVATE
         ad::aunteater
         ad::aunteaterAdapter
+        ad::ebench
         benchmark::benchmark
 )
 

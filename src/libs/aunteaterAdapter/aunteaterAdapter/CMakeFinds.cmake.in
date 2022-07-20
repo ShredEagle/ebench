@@ -1,3 +1,4 @@
 # Now aunteater is embedded directly in the repo
 @find_package@(Aunteater CONFIG @REQUIRED@ COMPONENTS aunteater)
+@find_package@(Math CONFIG @REQUIRED@ COMPONENTS math)
 #@find_package@(Aunteater CONFIG @REQUIRED@ COMPONENTS aunteater)

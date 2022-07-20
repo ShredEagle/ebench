@@ -25,6 +25,7 @@ class Aunteaterv1Conan(ConanFile):
 
     requires = (
         ("aunteater/1a3b5937a6@adnn/develop"),
+        ("math/72087b9ee3@adnn/develop"),
         ("benchmark/1.6.1"),
     )
 

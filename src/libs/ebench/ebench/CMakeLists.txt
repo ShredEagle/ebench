@@ -30,6 +30,14 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 ## Dependencies
 ##
 
+cmc_find_dependencies()
+
+target_link_libraries(${TARGET_NAME}
+    PRIVATE
+        benchmark::benchmark
+        ad::aunteaterAdapter
+        ad::math
+)
 
 ##
 ## Install

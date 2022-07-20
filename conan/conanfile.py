@@ -24,7 +24,9 @@ class EbenchConan(ConanFile):
         "visibility": "hidden"
     }
 
-    requires = ("boost/1.79.0",)
+    requires = (
+        "boost/1.79.0",
+    )
 
     # Note: It seems conventionnal to add CMake build requirement
     # directly to the build profile.
