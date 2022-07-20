@@ -10,10 +10,16 @@ AunteaterWorld::AunteaterWorld() :
 void AunteaterWorld::addEntityWithPosition()
 {
 
-    mEntityManager.addEntity(aunteater::Entity{}.add<Position>());
+    mEntityManager.addEntity(aunteater::Entity{}.add<Position>(math::Position<2, float>::Zero()));
 }
 
-aunteater::LiveEntity * AunteaterWorld::addEntity()
+void AunteaterWorld::addEntityWithDisplacement()
+{
+
+    mEntityManager.addEntity(aunteater::Entity{}.add<Displacement>(0.1f, 0.2f));
+}
+
+aunteater::weak_entity AunteaterWorld::addEntity()
 {
     return mEntityManager.addEntity(aunteater::Entity{});
 }
@@ -21,6 +27,11 @@ aunteater::LiveEntity * AunteaterWorld::addEntity()
 void AunteaterWorld::addComponent(aunteater::LiveEntity * aEntity)
 {
     aEntity->add<Position>(math::Position<2, float>::Zero());
+}
+
+void AunteaterWorld::remove(aunteater::weak_entity aEntity)
+{
+    mEntityManager.markToRemove(aEntity);
 }
 
 }

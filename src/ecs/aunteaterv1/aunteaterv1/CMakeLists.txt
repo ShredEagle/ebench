@@ -15,6 +15,8 @@ add_executable(${TARGET_NAME}
 find_package(Aunteater REQUIRED CONFIG COMPONENTS aunteater)
 find_package(benchmark REQUIRED CONFIG)
 
+target_compile_options(${TARGET_NAME}
+    PRIVATE "-O0" "-fno-omit-frame-pointer")
 target_link_libraries(${TARGET_NAME}
     PRIVATE
         ad::aunteater

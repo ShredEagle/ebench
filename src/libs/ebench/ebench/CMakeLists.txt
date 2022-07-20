@@ -31,6 +31,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 ##
 
 cmc_find_dependencies()
+target_compile_options(${TARGET_NAME}
+    PRIVATE "-fno-omit-frame-pointer")
 
 target_link_libraries(${TARGET_NAME}
     PRIVATE
