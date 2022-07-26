@@ -1,7 +1,7 @@
 
 #include <aunteaterAdapter/model.h>
 
-#include <ebench/bench.cpp>
+#include <ebench/bench.h>
 #include <benchmark/benchmark.h>
 #include <string>
 

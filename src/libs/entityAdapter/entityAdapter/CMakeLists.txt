@@ -1,4 +1,4 @@
-set(TARGET_NAME aunteaterAdapter)
+set(TARGET_NAME entityAdapter)
 
 set(${TARGET_NAME}_HEADERS
     model.h
@@ -29,15 +29,15 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 cmc_find_dependencies()
 
 # target_compile_options(${TARGET_NAME}
-#     PRIVATE "-fno-omit-frame-pointer" "-fsanitize=address")
+#     PRIVATE "-fno-omit-frame-pointer" "-g" "-fsanitize=leak" "-Wall" "-Wextra" "-fsanitize=address" "-fsanitize=undefined")
 # target_link_options(${TARGET_NAME}
-#     PRIVATE "-fsanitize=address")
+#     PRIVATE "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined")
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC
-        ad::ebench
-        ad::aunteater
+        ad::entity
         ad::math
+        ad::ebench
 )
 
 

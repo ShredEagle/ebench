@@ -1,4 +1,4 @@
-set(TARGET_NAME aunteaterv1)
+set(TARGET_NAME entity_bench)
 
 set(${TARGET_NAME}_HEADERS
 )
@@ -12,15 +12,18 @@ add_executable(${TARGET_NAME}
     ${${TARGET_NAME}_HEADERS})
 
 
-find_package(Aunteater REQUIRED CONFIG COMPONENTS aunteater)
+find_package(Entity REQUIRED CONFIG COMPONENTS entity)
 find_package(benchmark REQUIRED CONFIG)
 
-target_compile_options(${TARGET_NAME}
-    PRIVATE "-fno-omit-frame-pointer")
+# target_compile_options(${TARGET_NAME}
+#     PRIVATE "-fno-omit-frame-pointer" "-g" "-fsanitize=leak" "-Wall" "-Wextra" "-fsanitize=address" "-fsanitize=undefined")
+# target_link_options(${TARGET_NAME}
+#     PRIVATE "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined")
+
 target_link_libraries(${TARGET_NAME}
     PRIVATE
-        ad::aunteater
-        ad::aunteaterAdapter
+        ad::entity
+        ad::entityAdapter
         ad::ebench
         benchmark::benchmark
 )

@@ -6,12 +6,12 @@ from os import path
 from os import getcwd
 
 
-class Aunteaterv1Conan(ConanFile):
-    name = "aunteaterv1_bench"
+class EntityConan(ConanFile):
+    name = "entity_bench"
     license = "MIT"
     author = "FranzPoize"
     url = "https://github.com/Shreadeagle/ebench"
-    description = "Aunteater v1 benchmark"
+    description = "Entity benchmark"
     topics = ("bench", "mark")
     settings = "os", "compiler", "build_type", "arch"
     options = {
@@ -20,11 +20,11 @@ class Aunteaterv1Conan(ConanFile):
     }
     default_options = {
         "shared": False,
-        "engine": "aunteater",
+        "engine": "entity",
     }
 
     requires = (
-        ("aunteater/1a3b5937a6@adnn/develop"),
+        ("entity/0.1.1@adnn/stable"),
         ("math/72087b9ee3@adnn/develop"),
         ("benchmark/1.6.1"),
     )

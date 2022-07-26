@@ -1,6 +1,8 @@
 #pragma once
 
 
+#include <ebench/bench.h>
+#include <array>
 #include <aunteater/Component.h>
 #include <aunteater/FamilyHelp.h>
 #include <aunteater/System.h>
@@ -15,37 +17,6 @@ namespace ebench {
 
 
 using Floating = double;
-struct VariableStruct32
-{
-    u_int8_t a;
-    u_int8_t b;
-    u_int8_t c;
-    u_int8_t d;
-};
-
-struct VariableStruct64
-{
-    u_int16_t a;
-    u_int16_t b;
-    u_int16_t c;
-    u_int16_t d;
-};
-
-struct VariableStruct128
-{
-    u_int32_t a;
-    u_int32_t b;
-    u_int32_t c;
-    u_int32_t d;
-};
-
-struct VariableStruct256
-{
-    u_int64_t a;
-    u_int64_t b;
-    u_int64_t c;
-    u_int64_t d;
-};
 
 // IMPORTANT: NodeList is not equilvalent to aunteater::list_entity
 // see https://stackoverflow.com/q/32723988/1027706
@@ -70,17 +41,10 @@ struct TemplatedComponent : public aunteater::Component<TemplatedComponent<N_ran
     int u = N_ran;
 };
 
-template<typename T>
-concept HasMemberX = requires(T a)
+template<int N_arraySize>
+struct VaryingSizeComponent : public aunteater::Component<VaryingSizeComponent<N_arraySize>>
 {
-    {a.a + a.b + a.c + a.d} -> std::convertible_to<long long>;
-};
-
-
-template<HasMemberX T_struct>
-struct VaryingSizeComponent : public aunteater::Component<VaryingSizeComponent<T_struct>>
-{
-    T_struct data;
+    std::array<long, N_arraySize> data;
 };
 
 
@@ -172,26 +136,27 @@ private:
     aunteater::FamilyHelp<Displaceable> mDisplacement;
 };
 
-template<typename T>
+template<int N_arraySize>
 class VaryingSizeSystem : public aunteater::System<>
 {
 public:
     VaryingSizeSystem(aunteater::EntityManager & aEngine) :
         mVariables{aEngine}
     {}
+
     void update(const aunteater::Timer aTimer) override
     {
-        for (auto & [variableStruct] : mVariables)
+        for (auto & [variableComp] : mVariables)
         {
-            variableStruct.data.a++;
-            variableStruct.data.b++;
-            variableStruct.data.c++;
-            variableStruct.data.d++;
+            for (long & datum : variableComp.data)
+            {
+                datum++;
+            }
         }
     }
 
 private:
-    aunteater::FamilyHelp<aunteater::Archetype<VaryingSizeComponent<T>>> mVariables;
+    aunteater::FamilyHelp<aunteater::Archetype<VaryingSizeComponent<N_arraySize>>> mVariables;
 };
 
 template<int N>
@@ -267,18 +232,16 @@ private:
 
 struct AunteaterWorld
 {
+    constexpr static BenchFeature gFeatures{.addEntity = true};
+
     using MovementSystem = MovementSystem;
     using NestedSystem = NestedSystem;
     using NestedTwoSystem = NestedTwoSystem;
     using Entity = aunteater::weak_entity;
     template<int T>
     using RandomAccessSystem = RandomAccessSystem<T>;
-    template<typename T>
-    using VaryingSizeSystem = VaryingSizeSystem<T>;
-    using VariableStruct32 = VariableStruct32;
-    using VariableStruct64 = VariableStruct64;
-    using VariableStruct128 = VariableStruct128;
-    using VariableStruct256 = VariableStruct256;
+    template<int N_arraySize>
+    using VaryingSizeSystem = VaryingSizeSystem<N_arraySize>;
 
     AunteaterWorld();
 
@@ -307,10 +270,10 @@ struct AunteaterWorld
 
     Entity addEntity();
     void addComponent(Entity aEntity);
-    template<typename T_struct>
+    template<int N_arraySize>
     void addComponentTemplate(Entity aEntity)
     {
-        aEntity->add<VaryingSizeComponent<T_struct>>();
+        aEntity->add<VaryingSizeComponent<N_arraySize>>();
     };
     void remove(Entity aEntity);
     void update()
