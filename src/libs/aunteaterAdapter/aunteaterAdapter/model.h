@@ -25,14 +25,24 @@ using Floating = double;
 
 using Engine = aunteater::SystemManager<>;
 
+struct Simple : public aunteater::Component<Simple>
+{
+    int a = 0;
+};
+
+struct SimpleB : public aunteater::Component<SimpleB>
+{
+    int a = 0;
+};
+
 struct Position : public aunteater::Component<Position>
 {
     Position(math::Position<2, float> aPos): 
         x{aPos.x()},
         y{aPos.y()}
     {};
-    Floating x;
-    Floating y;
+    Floating x = 0.f;
+    Floating y = 0.f;
 };
 
 template<int N_ran>
@@ -44,7 +54,7 @@ struct TemplatedComponent : public aunteater::Component<TemplatedComponent<N_ran
 template<int N_arraySize>
 struct VaryingSizeComponent : public aunteater::Component<VaryingSizeComponent<N_arraySize>>
 {
-    std::array<long, N_arraySize> data;
+    std::array<int, N_arraySize> data;
 };
 
 
@@ -61,6 +71,8 @@ struct Displacement : public aunteater::Component<Displacement>
 
 
 using Movable = aunteater::Archetype<Position>;
+using Simplable = aunteater::Archetype<Simple>;
+using SimplableB = aunteater::Archetype<SimpleB>;
 using Displaceable = aunteater::Archetype<Displacement>;
 
 // Note: Use the family as a type template parameter, instead of the collection as a template template parameter
@@ -68,72 +80,71 @@ using Displaceable = aunteater::Archetype<Displacement>;
 // (the template and its alias are considered different)
 //template <template <class> class TT_entityCollection>
 
-class MovementSystem : public aunteater::System<>
+class SimpleSystem : public aunteater::System<>
 {
 public:
-    MovementSystem(aunteater::EntityManager & aEngine) :
-        mMovables{aEngine}
+    SimpleSystem(aunteater::EntityManager & aEngine) :
+        mSimples{aEngine}
     {}
 
     void update(const aunteater::Timer aTimer) override
     {
-        for (auto & [position] : mMovables)
+        for (auto & [simple] : mSimples)
         {
-            position.x += aTimer.delta() * 1.1f;
-            position.y += aTimer.delta() * 1.5f;
+            simple.a++;
         }
     }
 
 private:
-    aunteater::FamilyHelp<Movable> mMovables;
+    aunteater::FamilyHelp<Simplable> mSimples;
 };
 
 class NestedSystem : public aunteater::System<>
 {
 public:
     NestedSystem(aunteater::EntityManager & aEngine) :
-        mMovables{aEngine}
+        mSimples{aEngine}
     {}
 
     void update(const aunteater::Timer aTimer) override
     {
-        for (auto & [position] : mMovables)
+        for (auto & [simpleA] : mSimples)
         {
-            for (auto & [positionTwo] : mMovables)
+            for (auto & [simpleB] : mSimples)
             {
-                positionTwo.x += aTimer.delta() * position.x;
-                positionTwo.y += aTimer.delta() * position.y;
+                simpleA.a++;
+                simpleB.a++;
             }
         }
     }
 
 private:
-    aunteater::FamilyHelp<Movable> mMovables;
+    aunteater::FamilyHelp<Simplable> mSimples;
 };
 
 class NestedTwoSystem : public aunteater::System<>
 {
 public:
     NestedTwoSystem(aunteater::EntityManager & aEngine) :
-        mMovables{aEngine},
-        mDisplacement{aEngine}
+        mSimples{aEngine},
+        mSimplesB{aEngine}
     {}
 
     void update(const aunteater::Timer aTimer) override
     {
-        for (auto & [position] : mMovables)
+        for (auto & [simpleA] : mSimples)
         {
-            for (auto & [displacement] : mDisplacement)
+            for (auto & [simpleB] : mSimplesB)
             {
-                position.x += aTimer.delta() * displacement.x;
-                position.y += aTimer.delta() * displacement.y;
+                simpleA.a++;
+                simpleB.a++;
             }
         }
     }
 
 private:
-    aunteater::FamilyHelp<Movable> mMovables;
-    aunteater::FamilyHelp<Displaceable> mDisplacement;
+    aunteater::FamilyHelp<Simplable> mSimples;
+    aunteater::FamilyHelp<SimplableB> mSimplesB;
 };
 
 template<int N_arraySize>
@@ -148,7 +159,7 @@ public:
     {
         for (auto & [variableComp] : mVariables)
         {
-            for (long & datum : variableComp.data)
+            for (int & datum : variableComp.data)
             {
                 datum++;
             }
@@ -232,11 +243,16 @@ private:
 
 struct AunteaterWorld
 {
-    constexpr static BenchFeature gFeatures{.addEntity = true};
+    constexpr static BenchFeature gFeatures{
+        .addRemoveEntity = true,
+        .addRemoveComponent = true,
+        .iteration = true,
+        .entityAdditionDependentOnSystem = true
+    };
 
-    using MovementSystem = MovementSystem;
-    using NestedSystem = NestedSystem;
-    using NestedTwoSystem = NestedTwoSystem;
+    using Simple = Simple;
+    using SimpleB = SimpleB;
+    using SimpleSystem = SimpleSystem;
     using Entity = aunteater::weak_entity;
     template<int T>
     using RandomAccessSystem = RandomAccessSystem<T>;
@@ -245,15 +261,28 @@ struct AunteaterWorld
 
     AunteaterWorld();
 
+    Entity addEntity();
+    void addEntityWithSimple();
+    void remove(Entity aEntity);
+    void commit();
+    void setup();
+    void prepareWorldForIteration();
+    void prepareWorldForNestedIteration();
+    void prepareWorldForDiffIteration();
+    void simpleIteration();
+    void nestedIteration();
+    void nestedDifferentIteration();
+
     template<typename T_system>
     void addSystem()
     {
         mSystemManager.add<T_system>();
     }
-
-    void addEntityWithPosition();
-    void addEntityWithDisplacement();
-
+    template<typename T_comp>
+    void addComponent(Entity aEntity)
+    {
+        aEntity->add<T_comp>();
+    }
     template<int N_maxComponent>
     Entity addEntityWithMultipleComponent()
     {
@@ -267,83 +296,26 @@ struct AunteaterWorld
     {
         TemplatedComponentHelper<N_maxComponent>::remove(aEntity, mEntityManager);
     }
-
-    Entity addEntity();
-    void addComponent(Entity aEntity);
     template<int N_arraySize>
     void addComponentTemplate(Entity aEntity)
     {
         aEntity->add<VaryingSizeComponent<N_arraySize>>();
     };
-    void remove(Entity aEntity);
-    void update()
+    template<int N_arraySize>
+    void prepareWorldForVaryingSizeIteration()
+    {
+        mSystemManager.add<VaryingSizeSystem<N_arraySize>>();
+    }
+    template<int N_arraySize>
+    void varyingSizeIteration()
     {
         mSystemManager.update(mTimer);
-    };
+    }
 
+    private:
     aunteater::SystemManager<> mSystemManager;
     aunteater::EntityManager mEntityManager;
     aunteater::Timer mTimer;
 };
-
-/* using Positioned = aunteater::Archetype<Position>; */
-
-
-/* template <class T_family> */
-/* class SumSystem : public aunteater::System */
-/* { */
-/* public: */
-/*     SumSystem(aunteater::Engine<T_family> & aEngine) : */
-/*         mPositioneds{aEngine.template getFamily<Positioned>()} */
-/*     {} */
-
-/*     void update(const aunteater::Timer aTimer) override */
-/*     { */
-/*         for (auto & entity : mPositioneds) */
-/*         { */
-/*             auto & position = entity->template get<Position>(); */
-
-/*             mSum += position.x; */
-/*         } */
-/*     } */
-
-/*     Floating getSum() const */
-/*     { */
-/*         return mSum; */
-/*     } */
-
-/* private: */
-/*     T_family & mPositioneds; */
-/*     Floating mSum{0.}; */
-/* }; */
-
-
-/* template <class T_family> */
-/* class SumSystem_FamilyHelp : public aunteater::System */
-/* { */
-/* public: */
-/*     SumSystem_FamilyHelp(aunteater::Engine<T_family> & aEngine) : */
-/*         mPositioneds{aEngine} */
-/*     {} */
-
-/*     void update(const aunteater::Timer aTimer) override */
-/*     { */
-/*         for (auto & [position] : mPositioneds) */
-/*         { */
-/*             mSum += position.x; */
-/*         } */
-/*     } */
-
-/*     Floating getSum() const */
-/*     { */
-/*         return mSum; */
-/*     } */
-
-/* private: */
-/*     aunteater::FamilyHelp<T_family, Positioned> mPositioneds; */
-/*     Floating mSum{0.}; */
-/* }; */
-
-
-} // namespace ebench
-} // namespace ad
+}
+}

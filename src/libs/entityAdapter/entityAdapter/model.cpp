@@ -5,39 +5,75 @@
 namespace ad {
 namespace ebench {
 
-/* void EntityWorld::addEntityWithPosition() */
-/* { */
+void EntityWorld::addEntityWithSimple()
+{
 
-/*     ent::Handle<ent::Entity> handle = mWorld.addEntity(); */
-/*     ent::Entity entity = *handle.get(mPhase); */
-/*     entity.add(Position{0.f, 0.f}); */
-/* } */
-
-/* void EntityWorld::addEntityWithDisplacement() */
-/* { */
-
-/*     ent::Handle<ent::Entity> handle = mWorld.addEntity(); */
-/*     ent::Entity entity = *handle.get(mPhase); */
-/*     entity.add(Displacement{0.2f, 0.3f}); */
-/* } */
+    ent::Handle<ent::Entity> handle = mState.mWorld.addEntity();
+    ent::Entity entity = *handle.get(*mState.mPhase);
+    entity.add(Simple{});
+}
 
 EntityWorld::Entity EntityWorld::addEntity()
 {
-    return mWorld.addEntity();
+    return mState.mWorld.addEntity();
 }
 
-/* void EntityWorld::addComponent(EntityWorld::Entity & aHandle) */
-/* { */
+void EntityWorld::remove(EntityWorld::Entity & aHandle)
+{
+    aHandle.get(*mState.mPhase)->erase();
+}
 
-/*     ent::Entity entity = *aHandle.get(mPhase); */
-/*     entity.add(Position{0.2f, 0.3f}); */
-/* } */
+void EntityWorld::commit()
+{
+    mState.mPhase = nullptr;
+};
 
-/* void EntityWorld::remove(EntityWorld::Entity & aHandle) */
-/* { */
-/*     ent::Entity entity = *aHandle.get(mPhase); */
-/*     entity.erase(); */
-/* } */
+void EntityWorld::setup()
+{
+    mState.mPhase = std::make_unique<ent::Phase>();
+};
+void EntityWorld::prepareWorldForIteration()
+{
+    qA = std::make_unique<ent::Query<Simple>>(mState.mWorld);
+}
+void EntityWorld::prepareWorldForNestedIteration()
+{
+    prepareWorldForIteration();
+}
+void EntityWorld::prepareWorldForDiffIteration()
+{
+    qA = std::make_unique<ent::Query<Simple>>(mState.mWorld);
+    qB = std::make_unique<ent::Query<SimpleB>>(mState.mWorld);
+}
+void EntityWorld::simpleIteration()
+{
+    qA->each([](Simple & a)
+    {
+        a.a++;
+    });
+}
+void EntityWorld::nestedIteration()
+{
+    qA->each([&](Simple & a)
+    {
+        qA->each([&](Simple & b)
+        {
+            a.a++;
+            b.a++;
+        });
+    });
+}
+void EntityWorld::nestedDifferentIteration()
+{
+    qA->each([&](Simple & a)
+    {
+        qB->each([&](SimpleB & b)
+        {
+            a.a++;
+            b.a++;
+        });
+    });
+}
 
 }
 }

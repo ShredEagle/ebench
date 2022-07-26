@@ -7,16 +7,10 @@ AunteaterWorld::AunteaterWorld() :
     mSystemManager{mEntityManager}
 {}
 
-void AunteaterWorld::addEntityWithPosition()
+void AunteaterWorld::addEntityWithSimple()
 {
 
-    mEntityManager.addEntity(aunteater::Entity{}.add<Position>(math::Position<2, float>::Zero()));
-}
-
-void AunteaterWorld::addEntityWithDisplacement()
-{
-
-    mEntityManager.addEntity(aunteater::Entity{}.add<Displacement>(0.1f, 0.2f));
+    mEntityManager.addEntity(aunteater::Entity{}.add<Simple>());
 }
 
 aunteater::weak_entity AunteaterWorld::addEntity()
@@ -24,15 +18,47 @@ aunteater::weak_entity AunteaterWorld::addEntity()
     return mEntityManager.addEntity(aunteater::Entity{});
 }
 
-void AunteaterWorld::addComponent(aunteater::LiveEntity * aEntity)
-{
-    aEntity->add<Position>(math::Position<2, float>::Zero());
-}
-
 void AunteaterWorld::remove(aunteater::weak_entity aEntity)
 {
     mEntityManager.markToRemove(aEntity);
 }
 
+void AunteaterWorld::commit()
+{
+    mSystemManager.update(mTimer);
+}
+
+void AunteaterWorld::setup()
+{}
+
+void AunteaterWorld::prepareWorldForIteration()
+{
+    mSystemManager.add<SimpleSystem>();
+}
+
+void AunteaterWorld::prepareWorldForNestedIteration()
+{
+    mSystemManager.add<NestedSystem>();
+}
+
+void AunteaterWorld::prepareWorldForDiffIteration()
+{
+    mSystemManager.add<NestedTwoSystem>();
+}
+
+void AunteaterWorld::simpleIteration()
+{
+    mSystemManager.update(mTimer);
+}
+
+void AunteaterWorld::nestedIteration()
+{
+    mSystemManager.update(mTimer);
+}
+
+void AunteaterWorld::nestedDifferentIteration()
+{
+    mSystemManager.update(mTimer);
+}
 }
 }

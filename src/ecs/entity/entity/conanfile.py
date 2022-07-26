@@ -24,7 +24,7 @@ class EntityConan(ConanFile):
     }
 
     requires = (
-        ("entity/0.1.1@adnn/stable"),
+        ("entity/0.1.2@adnn/stable"),
         ("math/72087b9ee3@adnn/develop"),
         ("benchmark/1.6.1"),
     )
