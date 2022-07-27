@@ -2,10 +2,11 @@ set(TARGET_NAME aunteaterAdapter)
 
 set(${TARGET_NAME}_HEADERS
     model.h
+    world.h
 )
 
 set(${TARGET_NAME}_SOURCES
-    model.cpp
+    world.cpp
 )
 
 add_library(${TARGET_NAME}

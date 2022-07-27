@@ -123,6 +123,8 @@ void BM_SimpleIteration(benchmark::State & aState)
         world.simpleIteration();
     }
 
+    world.commit();
+
     aState.SetItemsProcessed(aState.range(0) * aState.iterations());
 }
 
@@ -299,6 +301,7 @@ int allbench()
     }
     if constexpr (T::gFeatures.iteration)
     {
+        BENCHMARK_TEMPLATE(BM_SimpleIteration, T)->Arg(1);
         BENCHMARK_TEMPLATE(BM_SimpleIteration, T)->Range(2 << 9, 2 << 16);
         BENCHMARK_TEMPLATE(BM_SimpleIteration, T)->Arg(1000000);
         BENCHMARK_TEMPLATE(BM_NestedIterationOnSameArchetype, T)->Range(2 << 4, 2 << 7);

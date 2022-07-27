@@ -1,4 +1,4 @@
-set(TARGET_NAME entityAdapter)
+set(TARGET_NAME flecsAdapter)
 
 set(${TARGET_NAME}_HEADERS
     model.h
@@ -30,15 +30,15 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 cmc_find_dependencies()
 
 # target_compile_options(${TARGET_NAME}
-#     PRIVATE "-fno-omit-frame-pointer" "-g" "-fsanitize=leak" "-Wall" "-Wextra" "-fsanitize=address" "-fsanitize=undefined")
+#     PRIVATE "-fno-omit-frame-pointer" "-fsanitize=address")
 # target_link_options(${TARGET_NAME}
-#     PRIVATE "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined")
+#     PRIVATE "-fsanitize=address")
 
 target_link_libraries(${TARGET_NAME}
     PUBLIC
-        ad::entity
-        ad::math
         ad::ebench
+        flecs::flecs_static
+        ad::math
 )
 
 

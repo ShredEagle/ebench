@@ -1,4 +1,4 @@
-#include "model.h"
+#include "world.h"
 #include <entity/Entity.h>
 #include <math/Vector.h>
 
@@ -47,7 +47,7 @@ void EntityWorld::prepareWorldForDiffIteration()
 }
 void EntityWorld::simpleIteration()
 {
-    qA->each([](Simple & a)
+    qA->each([&](Simple & a)
     {
         a.a++;
     });
