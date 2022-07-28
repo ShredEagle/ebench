@@ -2,6 +2,19 @@
 
 Benchmark game engine designs.
 
+## How to run
+There is currently 3 engine that can be benchmarked:
+* [`aunteaterv1`](https://github.com/ShredEagle/aunteater)
+* [`entity`](https://github.com/ShredEagle/entity)
+* [`flecs`](https://github.com/SanderMertens/flecs)
+
+To build a benchmark run
+```
+conan install -s compiler=clang -s compiler.version=14 -s compiler.cppstd=libstdc++11 -s compiler.cppstd=20 -s build_type=Release src/ecs/ENGINE_NAME/ENGINE_NAME/conanfile.py
+conan build src/ecs/ENGINE_NAME/ENGINE_NAME/conanfile.py
+```
+Replace ENGINE_NAME by one of the 3 engines supported
+
 ## Aunteater benchmark results
 |name|iterations|real_time|cpu_time|time_unit|items_per_second|
 |----|----------|---------|--------|---------|----------------|
