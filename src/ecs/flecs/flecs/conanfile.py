@@ -1,36 +1,33 @@
 from conans import ConanFile, tools
-from conan.tools.cmake import CMake, cmake_layout
+from conan.tools.cmake import CMake
+from conan.tools.files import copy
 
 from os import path
+from os import getcwd
 
 
-class EbenchConan(ConanFile):
-    """ Conan recipe for Ebench """
-
-    name = "ebench"
-    license = "MIT License"
-    url = "https://github.com/Adnn/ebench"
-    description = "Benchmark game engine designs."
-    topics = ("game", "benchmark")
-    settings = ("os", "compiler", "build_type", "arch")
+class EntityConan(ConanFile):
+    name = "flecs_bench"
+    license = "MIT"
+    author = "FranzPoize"
+    url = "https://github.com/Shreadeagle/ebench"
+    description = "Entity benchmark"
+    topics = ("bench", "mark")
+    settings = "os", "compiler", "build_type", "arch"
     options = {
-        "build_tests": [True, False],
         "shared": [True, False],
-        "visibility": ["default", "hidden"],
+        "engine": "ANY",
     }
     default_options = {
-        "build_tests": False,
         "shared": False,
-        "visibility": "hidden"
+        "engine": "flecs",
     }
 
     requires = (
-        "boost/1.79.0",
+        ("flecs/2.4.8"),
+        ("math/72087b9ee3@adnn/develop"),
+        ("benchmark/1.6.1"),
     )
-
-    # Note: It seems conventionnal to add CMake build requirement
-    # directly to the build profile.
-    #build_requires = ()
 
     build_policy = "missing"
     generators = "CMakeDeps", "CMakeToolchain"
@@ -42,9 +39,7 @@ class EbenchConan(ConanFile):
         "submodule": "recursive",
     }
 
-
     python_requires="shred_conan_base/0.0.2@adnn/develop"
-    python_requires_extend="shred_conan_base.ShredBaseConanFile"
 
 
     def _generate_cmake_configfile(self):
@@ -52,7 +47,7 @@ class EbenchConan(ConanFile):
         """ cmake_paths generator, and forward the remaining options to CMake. """
         with open("conanuser_config.cmake", "w") as config:
             config.write("message(STATUS \"Including user generated conan config.\")\n")
-            config.write("set({} {})\n".format("BUILD_tests", self.options.build_tests))
+            config.write("set({} {})\n".format("SELECTED_engine", self.options.engine))
 
 
     def _configure_cmake(self):
@@ -77,6 +72,10 @@ class EbenchConan(ConanFile):
     def package(self):
         cmake = self._configure_cmake()
         cmake.install()
+
+    def layout(self):
+        self.python_requires["shred_conan_base"].module.shred_basic_layout(self);
+        self.folders.root = "../../../.."
 
 
     def package_info(self):

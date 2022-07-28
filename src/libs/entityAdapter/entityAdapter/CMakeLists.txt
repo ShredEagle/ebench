@@ -1,17 +1,18 @@
-set(TARGET_NAME ebench)
+set(TARGET_NAME entityAdapter)
 
 set(${TARGET_NAME}_HEADERS
-    bench.h
+    model.h
+    world.h
 )
 
 set(${TARGET_NAME}_SOURCES
+    world.cpp
 )
 
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR}
-             FILES ${${TARGET_NAME}_HEADERS} ${${TARGET_NAME}_SOURCES}
+add_library(${TARGET_NAME}
+            ${${TARGET_NAME}_SOURCES}
+            ${${TARGET_NAME}_HEADERS}
 )
-
-add_library(${TARGET_NAME} INTERFACE)
 
 add_library(ad::${TARGET_NAME} ALIAS ${TARGET_NAME})
 
@@ -28,15 +29,18 @@ set_target_properties(${TARGET_NAME} PROPERTIES
 
 cmc_find_dependencies()
 
+# target_compile_options(${TARGET_NAME}
+#     PRIVATE "-fno-omit-frame-pointer" "-g" "-fsanitize=leak" "-Wall" "-Wextra" "-fsanitize=address" "-fsanitize=undefined")
+# target_link_options(${TARGET_NAME}
+#     PRIVATE "-fsanitize=address" "-fsanitize=leak" "-fsanitize=undefined")
+
 target_link_libraries(${TARGET_NAME}
-    INTERFACE
-        benchmark::benchmark
+    PUBLIC
+        ad::entity
         ad::math
+        ad::ebench
 )
 
-if(MSVC)
-    target_compile_options(${TARGET_NAME} INTERFACE "/Zc:__cplusplus")
-endif()
 
 ##
 ## Install

@@ -1,8 +1,19 @@
 add_subdirectory(libs/ebench/ebench)
 
-add_subdirectory(apps/benchmark)
 
-option (BUILD_tests "Build 'tests' application" true)
-if(BUILD_tests)
+#TODO: make an enum for SELECTED_engine
+if(SELECTED_engine STREQUAL "aunteater" )
+    add_subdirectory(libs/aunteaterAdapter/aunteaterAdapter)
+    add_subdirectory(ecs/aunteaterv1/aunteaterv1)
+    #add_subdirectory(apps/tests)
+endif()
+if(SELECTED_engine STREQUAL "entity" )
+    add_subdirectory(libs/entityAdapter/entityAdapter)
+    add_subdirectory(ecs/entity/entity)
+    #add_subdirectory(apps/tests)
+endif()
+if(SELECTED_engine STREQUAL "flecs" )
+    add_subdirectory(libs/flecsAdapter/flecsAdapter)
+    add_subdirectory(ecs/flecs/flecs)
     #add_subdirectory(apps/tests)
 endif()

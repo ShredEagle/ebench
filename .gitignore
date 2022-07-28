@@ -1,6 +1,9 @@
 # common #
 *.*~
 
+# CMake
+CMakeUserPresets.json
+
 # Build folders #
 /build/
 /build_*/
@@ -42,3 +45,7 @@ Thumbs.db
 *.user
 ipch
 .vscode
+/graph_info.json
+/conanbuildinfo.txt
+/conan.lock
+/conaninfo.txt
